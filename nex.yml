@@ -1,0 +1,41 @@
+parameters:
+  oneOf:
+  - type: object
+    required:
+      - save
+    properties:
+      save:
+        type: object
+        oneOf:
+          - type: object
+            required:
+              - paths
+              - key
+            properties:
+              paths:
+                type: string
+              key:
+                type: string
+          - type: object
+            required:
+              - paths
+              - key
+            properties:
+              paths:
+                type: array
+                item:
+                  type: string
+              key:
+                type: string
+  - type: object
+    required:
+      - restore
+    properties:
+      restore:
+        type: string
+runs:
+  runtime: nodejs-12.x
+  image: node:12.19-stretch
+  command:
+    - node
+    - dist/index.js
