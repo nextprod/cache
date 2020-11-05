@@ -29,12 +29,7 @@ const workspace = process.env.NEX_WORKSPACE || __dirname;
 function run(event) {
     return __awaiter(this, void 0, void 0, function* () {
         const params = event.parameters;
-        const homeEnv = process.platform === "win32" ? "USERPROFILE" : "HOME";
-        const home = process.env[homeEnv];
-        if (home === undefined) {
-            throw new Error(`${homeEnv} is not defined`);
-        }
-        const dir = path_1.default.resolve(home, ".nex-cache");
+        const dir = path_1.default.resolve(workspace, "../.nex-cache");
         if (!promise_fs_1.default.existsSync(dir)) {
             throw new Error(`Cache directory ${dir} was not mounted.`);
         }
@@ -61,7 +56,11 @@ const save = (dir, params) => __awaiter(void 0, void 0, void 0, function* () {
         // a checksum of of lock file.
         const archive = path_1.default.join(dir, params.key);
         // Create an archive.
-        yield tar_1.default.c({ file: `${archive}.tgz`, }, paths);
+        yield tar_1.default.c({
+            file: `${archive}.tgz`,
+            cwd: workspace,
+            preservePaths: true,
+        }, paths);
         console.log(`Cache stored: ${params.key}`);
     }
     catch (err) {
@@ -84,7 +83,7 @@ const restore = (dir, key) => __awaiter(void 0, void 0, void 0, function* () {
         promise_fs_1.default.copyFileSync(src, dest);
         yield tar_1.default.x({
             file: dest,
-            cwd: workspace,
+            cwd: process.platform === "win32" ? "\\" : "/",
         });
         promise_fs_1.default.unlinkSync(dest);
     }

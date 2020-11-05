@@ -21,12 +21,7 @@ type Event = {
 
 export async function run(event: Event) {
     const params = event.parameters;
-    const homeEnv = process.platform === "win32" ? "USERPROFILE" : "HOME";
-    const home = process.env[homeEnv];
-    if (home === undefined) {
-        throw new Error(`${homeEnv} is not defined`);
-    }
-    const dir = path.resolve(home, ".nex-cache")
+    const dir = path.resolve(workspace, "../.nex-cache")
     if (!fs.existsSync(dir)) {
         throw new Error(`Cache directory ${dir} was not mounted.`)
     }
@@ -51,7 +46,11 @@ const save = async (dir: string, params: Save):Promise<Error|void> => {
         // a checksum of of lock file.
         const archive = path.join(dir, params.key)
         // Create an archive.
-        await tar.c({file: `${archive}.tgz`,}, paths)
+        await tar.c({
+            file: `${archive}.tgz`,
+            cwd: workspace,
+            preservePaths: true,
+        }, paths);
         console.log(`Cache stored: ${params.key}`)
     } catch (err) {
         throw new Error(err)
@@ -74,7 +73,7 @@ const restore = async (dir: string, key: Restore):Promise<Error|void> => {
         fs.copyFileSync(src, dest)
         await tar.x({
             file: dest,
-            cwd: workspace,
+            cwd: process.platform === "win32" ? "\\" : "/",
         })
         fs.unlinkSync(dest)
     } catch (err) {
@@ -87,4 +86,3 @@ const writeOutput = async (hit: boolean) => {
     // Write secrets to json file.
     await fs.writeFileSync(filepath, JSON.stringify({value: hit}))
 }
-
