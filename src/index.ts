@@ -3,6 +3,7 @@ import path from 'path';
 import tar from 'tar'
 
 const outputDir = process.env.NEX_STEP_OUTPUT_DIR || __dirname;
+const workspace = process.env.NEX_WORKSPACE || __dirname;
 
 type Save = {
     paths: string | Array<string>,
@@ -43,7 +44,7 @@ export async function run(event: Event) {
 // local directory.
 const save = async (dir: string, params: Save):Promise<Error|void> => {
     let paths = Array.isArray(params.paths) ? params.paths : [params.paths];
-    paths = paths.map(p => path.join(process.env.NEX_WORKSPACE || '', p))
+    paths = paths.map(p => path.join(workspace, p))
     try {
         console.log("Save...")
         // Archive is identified by key which is supposed to be
@@ -66,12 +67,15 @@ const restore = async (dir: string, key: Restore):Promise<Error|void> => {
         }
         // Cache hit.
         await writeOutput(true)
-        const dest = path.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`)
+        const dest = path.resolve(workspace, `${key}.tgz`)
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
         console.log(`Restoring cache from ${src} to ${dest}`)
         fs.copyFileSync(src, dest)
-        await tar.x({file: dest})
+        await tar.x({
+            file: dest,
+            cwd: workspace,
+        })
         fs.unlinkSync(dest)
     } catch (err) {
         return err

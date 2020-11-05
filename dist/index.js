@@ -25,6 +25,7 @@ const promise_fs_1 = __importDefault(__webpack_require__(244));
 const path_1 = __importDefault(__webpack_require__(277));
 const tar_1 = __importDefault(__webpack_require__(789));
 const outputDir = process.env.NEX_STEP_OUTPUT_DIR || __dirname;
+const workspace = process.env.NEX_WORKSPACE || __dirname;
 function run(event) {
     return __awaiter(this, void 0, void 0, function* () {
         const params = event.parameters;
@@ -53,7 +54,7 @@ exports.run = run;
 // local directory.
 const save = (dir, params) => __awaiter(void 0, void 0, void 0, function* () {
     let paths = Array.isArray(params.paths) ? params.paths : [params.paths];
-    paths = paths.map(p => path_1.default.join(process.env.NEX_WORKSPACE || '', p));
+    paths = paths.map(p => path_1.default.join(workspace, p));
     try {
         console.log("Save...");
         // Archive is identified by key which is supposed to be
@@ -76,12 +77,15 @@ const restore = (dir, key) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Cache hit.
         yield writeOutput(true);
-        const dest = path_1.default.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`);
+        const dest = path_1.default.resolve(workspace, `${key}.tgz`);
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
         console.log(`Restoring cache from ${src} to ${dest}`);
         promise_fs_1.default.copyFileSync(src, dest);
-        yield tar_1.default.x({ file: dest });
+        yield tar_1.default.x({
+            file: dest,
+            cwd: workspace,
+        });
         promise_fs_1.default.unlinkSync(dest);
     }
     catch (err) {
