@@ -54,6 +54,7 @@ const save = async (dir: string, params: Save):Promise<Error|void> => {
         console.log(paths)
         // Create an archive.
         await tar.c({file: `${archive}.tgz`,}, paths)
+        console.log("Cache stored: ${params.key}")
     } catch (err) {
         throw new Error(err)
     }
@@ -84,3 +85,4 @@ const writeOutput = async (hit: boolean) => {
     // Write secrets to json file.
     await fs.writeFileSync(filepath, JSON.stringify({value: hit}))
 }
+
