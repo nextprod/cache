@@ -26,7 +26,6 @@ export async function run(event: Event) {
         throw new Error(`${homeEnv} is not defined`);
     }
     const dir = path.resolve(home, ".nex-cache")
-    console.log(`Resolved cache dir: ${dir}`)
     if (!fs.existsSync(dir)) {
         throw new Error(`Cache directory ${dir} was not mounted.`)
     }
@@ -50,8 +49,6 @@ const save = async (dir: string, params: Save):Promise<Error|void> => {
         // Archive is identified by key which is supposed to be
         // a checksum of of lock file.
         const archive = path.join(dir, params.key)
-        console.log(`Archive path: ${archive}.tgz`)
-        console.log(paths)
         // Create an archive.
         await tar.c({file: `${archive}.tgz`,}, paths)
         console.log("Cache stored: ${params.key}")
@@ -69,12 +66,13 @@ const restore = async (dir: string, key: Restore):Promise<Error|void> => {
         }
         // Cache hit.
         await writeOutput(true)
-        const filepath = path.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`)
+        const dest = path.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`)
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
-        fs.copyFileSync(src, filepath)
-        await tar.x({file: filepath})
-        fs.unlinkSync(filepath)
+        console.log("Restoring cache from ${src} to ${dest}")
+        fs.copyFileSync(src, dest)
+        await tar.x({file: dest})
+        fs.unlinkSync(src)
     } catch (err) {
         return err
     }
