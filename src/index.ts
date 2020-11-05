@@ -51,7 +51,7 @@ const save = async (dir: string, params: Save):Promise<Error|void> => {
         const archive = path.join(dir, params.key)
         // Create an archive.
         await tar.c({file: `${archive}.tgz`,}, paths)
-        console.log("Cache stored: ${params.key}")
+        console.log(`Cache stored: ${params.key}`)
     } catch (err) {
         throw new Error(err)
     }
@@ -69,7 +69,7 @@ const restore = async (dir: string, key: Restore):Promise<Error|void> => {
         const dest = path.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`)
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
-        console.log("Restoring cache from ${src} to ${dest}")
+        console.log(`Restoring cache from ${src} to ${dest}`)
         fs.copyFileSync(src, dest)
         await tar.x({file: dest})
         fs.unlinkSync(src)
