@@ -82,7 +82,7 @@ const restore = (dir, key) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Restoring cache from ${src} to ${dest}`);
         promise_fs_1.default.copyFileSync(src, dest);
         yield tar_1.default.x({ file: dest });
-        promise_fs_1.default.unlinkSync(src);
+        promise_fs_1.default.unlinkSync(dest);
     }
     catch (err) {
         return err;

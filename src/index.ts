@@ -72,7 +72,7 @@ const restore = async (dir: string, key: Restore):Promise<Error|void> => {
         console.log(`Restoring cache from ${src} to ${dest}`)
         fs.copyFileSync(src, dest)
         await tar.x({file: dest})
-        fs.unlinkSync(src)
+        fs.unlinkSync(dest)
     } catch (err) {
         return err
     }
