@@ -34,7 +34,6 @@ function run(event) {
             throw new Error(`${homeEnv} is not defined`);
         }
         const dir = path_1.default.resolve(home, ".nex-cache");
-        console.log(`Resolved cache dir: ${dir}`);
         if (!promise_fs_1.default.existsSync(dir)) {
             throw new Error(`Cache directory ${dir} was not mounted.`);
         }
@@ -60,10 +59,9 @@ const save = (dir, params) => __awaiter(void 0, void 0, void 0, function* () {
         // Archive is identified by key which is supposed to be
         // a checksum of of lock file.
         const archive = path_1.default.join(dir, params.key);
-        console.log(`Archive path: ${archive}.tgz`);
-        console.log(paths);
         // Create an archive.
         yield tar_1.default.c({ file: `${archive}.tgz`, }, paths);
+        console.log("Cache stored: ${params.key}");
     }
     catch (err) {
         throw new Error(err);
@@ -78,12 +76,13 @@ const restore = (dir, key) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Cache hit.
         yield writeOutput(true);
-        const filepath = path_1.default.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`);
+        const dest = path_1.default.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`);
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
-        promise_fs_1.default.copyFileSync(src, filepath);
-        yield tar_1.default.x({ file: filepath });
-        promise_fs_1.default.unlinkSync(filepath);
+        console.log("Restoring cache from ${src} to ${dest}");
+        promise_fs_1.default.copyFileSync(src, dest);
+        yield tar_1.default.x({ file: dest });
+        promise_fs_1.default.unlinkSync(src);
     }
     catch (err) {
         return err;
