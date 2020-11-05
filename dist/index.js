@@ -34,6 +34,7 @@ function run(event) {
             throw new Error(`${homeEnv} is not defined`);
         }
         const dir = path_1.default.resolve(home, ".nex-cache");
+        console.log(`Resolved cache dir: ${dir}`);
         if (!promise_fs_1.default.existsSync(dir)) {
             throw new Error(`Cache directory ${dir} was not mounted.`);
         }
@@ -52,12 +53,15 @@ exports.run = run;
 // an archive and placing it on shared file system or
 // local directory.
 const save = (dir, params) => __awaiter(void 0, void 0, void 0, function* () {
-    const paths = Array.isArray(params.paths) ? params.paths : [params.paths];
+    let paths = Array.isArray(params.paths) ? params.paths : [params.paths];
+    paths = paths.map(p => path_1.default.join(process.env.NEX_WORKSPACE || '', p));
     try {
         console.log("Save...");
         // Archive is identified by key which is supposed to be
         // a checksum of of lock file.
         const archive = path_1.default.join(dir, params.key);
+        console.log(`Archive path: ${archive}.tgz`);
+        console.log(paths);
         // Create an archive.
         yield tar_1.default.c({ file: `${archive}.tgz`, }, paths);
     }

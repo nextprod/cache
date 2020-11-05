@@ -26,6 +26,7 @@ export async function run(event: Event) {
         throw new Error(`${homeEnv} is not defined`);
     }
     const dir = path.resolve(home, ".nex-cache")
+    console.log(`Resolved cache dir: ${dir}`)
     if (!fs.existsSync(dir)) {
         throw new Error(`Cache directory ${dir} was not mounted.`)
     }
@@ -42,12 +43,15 @@ export async function run(event: Event) {
 // an archive and placing it on shared file system or
 // local directory.
 const save = async (dir: string, params: Save):Promise<Error|void> => {
-    const paths = Array.isArray(params.paths) ? params.paths : [params.paths];
+    let paths = Array.isArray(params.paths) ? params.paths : [params.paths];
+    paths = paths.map(p => path.join(process.env.NEX_WORKSPACE || '', p))
     try {
         console.log("Save...")
         // Archive is identified by key which is supposed to be
         // a checksum of of lock file.
         const archive = path.join(dir, params.key)
+        console.log(`Archive path: ${archive}.tgz`)
+        console.log(paths)
         // Create an archive.
         await tar.c({file: `${archive}.tgz`,}, paths)
     } catch (err) {
