@@ -61,7 +61,7 @@ const save = (dir, params) => __awaiter(void 0, void 0, void 0, function* () {
         const archive = path_1.default.join(dir, params.key);
         // Create an archive.
         yield tar_1.default.c({ file: `${archive}.tgz`, }, paths);
-        console.log("Cache stored: ${params.key}");
+        console.log(`Cache stored: ${params.key}`);
     }
     catch (err) {
         throw new Error(err);
@@ -79,7 +79,7 @@ const restore = (dir, key) => __awaiter(void 0, void 0, void 0, function* () {
         const dest = path_1.default.resolve(process.env.NEX_WORKSPACE || '', `${key}.tgz`);
         // Now copy an archive from cache directory to workspace, extract it
         // and remove original tar.gz.
-        console.log("Restoring cache from ${src} to ${dest}");
+        console.log(`Restoring cache from ${src} to ${dest}`);
         promise_fs_1.default.copyFileSync(src, dest);
         yield tar_1.default.x({ file: dest });
         promise_fs_1.default.unlinkSync(src);
